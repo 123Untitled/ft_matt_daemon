@@ -1,0 +1,8 @@
+build/
+exec_*
+
+Matt_daemon
+
+matt_daemon.lock
+
+compile_commands.json
