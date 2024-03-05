@@ -15,6 +15,9 @@
 #include "daemon.hpp"
 #include "exception.hpp"
 
+#include "time.hpp"
+#include <iostream>
+#include "tintin_reporter.hpp"
 
 int main(void) {
 
@@ -27,11 +30,12 @@ int main(void) {
 		ft::launch_daemon();
 	}
 	catch (const ft::exception& e) {
-		::write(STDERR_FILENO, e.what(), __builtin_strlen(e.what()));
-		::write(STDERR_FILENO, "\n", 1);
-		return -1;
+
+		ft::tintin_reporter::log(e.what());
+
+		return EXIT_FAILURE;
 	}
 
 
-	return 0;
+	return EXIT_SUCCESS;
 }

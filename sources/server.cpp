@@ -2,6 +2,7 @@
 #include "address.hpp"
 #include "is_running.hpp"
 #include "write.hpp"
+#include "tintin_reporter.hpp"
 
 #include <iostream>
 
@@ -18,6 +19,9 @@ ft::server::server(void)
 	// set non-blocking mode
 	_socket.non_blocking();
 
+	// set reuse address
+	_socket.reuse_address();
+
 	// setup address
 	ft::address addr{in_addr{INADDR_ANY}, 4242};
 
@@ -28,8 +32,10 @@ ft::server::server(void)
 	_socket.listen();
 
 	// add server to epoll dispatcher
-	ft::add<EPOLLIN | EPOLLET | EPOLLHUP | EPOLLRDHUP | EPOLLERR>(*this, _dispatch);
+	ft::add<EPOLLIN | EPOLLET>(*this, _dispatch);
 
+
+	ft::tintin_reporter::log("server initialized");
 }
 
 
@@ -48,48 +54,37 @@ auto ft::server::run(void) -> void {
 /* notify */
 auto ft::server::notify(const uint32_t events) -> void {
 
-	// check for error
-	if (events & EPOLLERR) {
-		ft::write("epoll error\n");
-	}
-
-	// check for hangup
-	if (events & EPOLLHUP) {
-		ft::write("epoll hangup\n");
-	}
-
-	// check for read hangup
-	if (events & EPOLLRDHUP) {
-		ft::write("epoll read hangup\n");
-	}
 
 	// check for read
 	if (events & EPOLLIN) {
-		ft::write("epoll read\n");
 
 		try {
 			// accept connection
-			auto new_socket = _socket.accept();
+			auto socket = _socket.accept();
 
 			// set non-blocking mode
-			new_socket.non_blocking();
+			socket.non_blocking();
 
+			auto client = _clients.emplace(static_cast<int>(socket),
+										   std::move(socket));
 
-			ft::client client{std::move(new_socket)};
-
-			//_clients.emplace_back(
-			//			std::move(new_socket));
-			//, _ssl_context);
+			if (not client.second) {
+				throw ft::exception{"client emplace failed"};
+			}
 
 			// add client to epoll dispatcher
-			ft::add<EPOLLIN | EPOLLET | EPOLLHUP | EPOLLRDHUP | EPOLLERR>(client, _dispatch);
+			ft::add<EPOLLIN | EPOLLET>(client.first->second, _dispatch);
+
+
+			ft::tintin_reporter::log("client connected");
 
 		}
 		catch (const ft::exception& e) {
-			std::cerr << e.what() << std::endl;
+			ft::tintin_reporter::error(e.what());
 		}
 
 	}
+
 }
 
 

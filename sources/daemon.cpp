@@ -26,67 +26,87 @@
 #include <sys/types.h>
 
 
-static auto close_descriptors(void) -> void {
+auto ft::close_descriptors(void) -> void {
 	if (::close( STDIN_FILENO) != 0
 	 || ::close(STDOUT_FILENO) != 0
 	 || ::close(STDERR_FILENO) != 0)
-		throw ft::exception{"close failed"};
+		throw ERRNO_EXCEPT;
+}
+
+
+/* fork */
+auto ft::fork(void) -> ::pid_t {
+
+	::pid_t pid = ::fork();
+
+	if (pid < 0)
+		throw ERRNO_EXCEPT;
+
+	return pid;
+}
+
+/* new session */
+auto ft::new_session(void) -> ::pid_t {
+
+	::pid_t sid = ::setsid();
+
+	if (sid == -1)
+		throw ERRNO_EXCEPT;
+
+	return sid;
+}
+
+/* change directory */
+auto ft::change_directory(const char* path) -> void {
+
+	if (::chdir(path) != 0)
+		throw ERRNO_EXCEPT;
 }
 
 
 /* daemon */
 auto ft::launch_daemon(void) -> void {
 
-
 	// fork process
-	::pid_t pid = ::fork();
-
-	// check error
-	if (pid < 0)
-		throw ft::exception{"fork failed"};
+	auto pid = ft::fork();
 
 	// return in parent process
 	if (pid > 0) return;
 
+	// create new session
+	ft::new_session();
+
+	//::umask(0);
+
+	// change working directory
+	ft::change_directory("/");
+
+	// close descriptors
+	close_descriptors();
+
+	// redirect standard file descriptors
+	//ft::unique_file stds[3] = {
+	//	{"/dev/null", O_RDONLY},
+	//	{"/dev/null", O_WRONLY},
+	//	{"/dev/null", O_WRONLY}
+	//};
+
 
 	// check if server is already running
-	ft::unique_file file{"matt_daemon.lock", O_CREAT | O_RDWR, 0666};
+	ft::unique_file file{"/home/untitled/data/ft_matt_daemon/matt_daemon.lock", O_CREAT | O_RDWR, 0666};
 
-	{
-		// lock file
-		ft::flock_guard lock{file};
+	// lock file
+	ft::flock_guard lock{file};
 
-		_::signal::setup();
+	_::signal::setup();
 
-		// create server
-		ft::server server;
+	// create server
+	ft::server server;
 
-		// start running
-		is::running::start();
+	// start running
+	is::running::start();
 
-
-		// create new session
-		if (::setsid() < 0)
-			throw ft::exception{"setsid failed"};
-
-		//::umask(0);
-
-		// change working directory
-		if (::chdir("/") != 0)
-			throw ft::exception{"chdir failed"};
-
-		// close descriptors
-		close_descriptors();
-
-		ft::unique_file stds[3] = {
-			{"/dev/null", O_RDONLY},
-			{"/dev/null", O_WRONLY},
-			{"/dev/null", O_WRONLY}
-		};
-
-		// run server
-		server.run();
-
-	}
+	// run server
+	server.run();
 
 }

@@ -92,7 +92,7 @@ namespace ft {
 
 			// -- private enums -----------------------------------------------
 
-			enum : int { TIMEOUT = 500, DEFAULT_SIZE = 1024, MAX_EVENTS = 256 };
+			enum : int { TIMEOUT = 500, MAX_EVENTS = 256 };
 
 
 			// -- private methods ---------------------------------------------
@@ -101,7 +101,10 @@ namespace ft {
 			ft::unique_descriptor _epoll;
 
 			/* events */
-			struct epoll_event _events[MAX_EVENTS];
+			struct ::epoll_event _events[MAX_EVENTS];
+
+			/* sigset */
+			const ::sigset_t _mask;
 
 
 		// -- friends ---------------------------------------------------------
@@ -134,13 +137,8 @@ namespace ft {
 		};
 
 		// add event
-		const int state = ::epoll_ctl(dispatcher._epoll, // epoll instance
-									  EPOLL_CTL_ADD,     // add operation
-									  observer.socket(), // get socket fd
-									  &event);           // event struct
-
-		if (state != 0)
-			throw ft::exception{"epoll add failed"};
+		if (::epoll_ctl(dispatcher._epoll, EPOLL_CTL_ADD, observer.socket(), &event) != 0)
+			throw ERRNO_EXCEPT;
 	}
 
 	/* mod */
@@ -156,13 +154,8 @@ namespace ft {
 		};
 
 		// modify event
-		const int state = ::epoll_ctl(dispatcher._epoll, // epoll instance
-									  EPOLL_CTL_MOD,     // modify operation
-									  observer.socket(), // get socket fd
-									  &event);           // event struct
-
-		if (state != 0)
-			throw ft::exception{"epoll mod failed"};
+		if (::epoll_ctl(dispatcher._epoll, EPOLL_CTL_MOD, observer.socket(), &event) != 0)
+			throw ERRNO_EXCEPT;
 	}
 
 	/* del */

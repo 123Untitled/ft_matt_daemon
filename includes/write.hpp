@@ -30,6 +30,12 @@ namespace ft {
 		return ::write(F, msg, N - 1);
 	}
 
+	/* write */
+	template <int F = STDIN_FILENO>
+	inline auto write(const char* msg, const decltype(sizeof(0)) size) noexcept -> long {
+		return ::write(F, msg, size);
+	}
+
 } // namespace ft
 
 #endif // FT_WRITE_HPP

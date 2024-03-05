@@ -4,6 +4,7 @@
 
 #include <csignal>
 #include "is_running.hpp"
+#include "exception.hpp"
 
 
 // -- _  N A M E S P A C E ----------------------------------------------------
@@ -31,6 +32,18 @@ namespace _ {
 				static_cast<void>(self::shared());
 			}
 
+			/* sigset */
+			template <int... S>
+			static auto set(void) -> ::sigset_t {
+				::sigset_t set;
+
+				if (::sigemptyset(&set) != 0)
+					throw ft::exception{"sigemptyset failed"};
+
+				(self::add_set<S>(set), ...);
+
+				return set;
+			}
 
 
 		private:
@@ -72,6 +85,13 @@ namespace _ {
 			static inline auto shared(void) -> self& {
 				static self instance;
 				return instance;
+			}
+
+			/* add set */
+			template <int S>
+			static inline auto add_set(::sigset_t& set) -> void {
+				if (::sigaddset(&set, S) != 0)
+					throw ft::exception{"sigaddset failed"};
 			}
 
 			/* handler */

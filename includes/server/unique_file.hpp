@@ -16,9 +16,9 @@
 #define FT_UNIQUE_FILE_HPP
 
 #include "unique_descriptor.hpp"
-#include "exception.hpp"
 
 #include <fcntl.h>
+#include <unistd.h>
 
 
 // -- F T  N A M E S P A C E --------------------------------------------------
@@ -45,14 +45,7 @@ namespace ft {
 			unique_file(void) noexcept = default;
 
 			/* open function constructor */
-			template <decltype(sizeof(0)) N, typename... A>
-			inline unique_file(const char (&path)[N], const A&... args)
-			: self::unique_descriptor{::open(path, args...)} {
-
-				// check socket
-				if (_descriptor == INVALID_DESCRIPTOR)
-					throw ft::exception{"open failed"};
-			}
+			unique_file(const char*, const int, const ::mode_t = 0600);
 
 			/* deleted copy constructor */
 			unique_file(const self&) = delete;
@@ -71,6 +64,12 @@ namespace ft {
 
 			/* move assignment operator */
 			inline auto operator=(self&&) noexcept -> self& = default;
+
+
+			// -- public methods ----------------------------------------------
+
+			/* write */
+			auto write(const void*, const size_t) const noexcept -> ssize_t;
 
 
 		private:

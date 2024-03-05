@@ -15,6 +15,8 @@
 #ifndef FT_EXCEPTION_HPP
 #define FT_EXCEPTION_HPP
 
+#include <errno.h>
+#include <string.h>
 
 // -- F T  N A M E S P A C E  -------------------------------------------------
 
@@ -42,8 +44,11 @@ namespace ft {
 			}
 
 			/* what constructor */
-			inline constexpr explicit exception(const char* what) noexcept
-			: _what{what} {
+			template <typename... S>
+			inline constexpr explicit exception(const S*... what) noexcept
+			: _what{} {
+
+
 			}
 
 			/* deleted copy constructor */
@@ -69,7 +74,7 @@ namespace ft {
 
 			/* what */
 			virtual inline auto what(void) const noexcept -> const char* {
-				return _what != nullptr ? _what : "unknown exception";
+				return *_what != '\0' ? _what : "unknown exception";
 			}
 
 
@@ -78,10 +83,88 @@ namespace ft {
 			// -- private members ---------------------------------------------
 
 			/* what */
-			const char* _what;
+			const char _what[1024];
 
 	}; // class exception
 
+
+
+	// -- E R R N O  E X C E P T I O N ----------------------------------------
+
+	class errno_exception : public ft::exception {
+
+
+		public:
+
+			// -- public types ------------------------------------------------
+
+			/* self type */
+			using self = ft::errno_exception;
+
+
+			// -- public lifecycle --------------------------------------------
+
+			/* default constructor */
+			inline constexpr errno_exception(const char* where) noexcept
+			: _what{} {
+
+				unsigned int i = 0;
+
+				if (where == nullptr)
+					where = "unknown";
+
+				while (where[i] != '\0') {
+					_what[i] = where[i];
+					++i;
+				}
+
+				_what[i    ] = ':';
+				_what[i + 1] = ' ';
+
+				i += 2;
+
+				const char* desc = ::strerrordesc_np(errno);
+				const char* code = ::strerrorname_np(errno);
+
+				if (desc == nullptr)
+					desc = "unknown error";
+
+				for (unsigned int j = 0; desc[j] != '\0'; ++j, ++i)
+					_what[i] = desc[j];
+
+				_what[i    ] = ' ';
+				_what[i + 1] = '(';
+
+				i += 2;
+
+				if (code == nullptr)
+					code = "unknown code";
+
+				for (unsigned int j = 0; code[j] != '\0'; ++j, ++i)
+					_what[i] = code[j];
+
+				_what[i    ] = ')';
+				_what[i + 1] = '\0';
+
+			}
+
+
+			/* what */
+			inline auto what(void) const noexcept -> const char* override {
+				return _what;
+			}
+
+
+		private:
+
+			/* what */
+			char _what[1024];
+
+	}; // class errno_exception
+
 } // namespace ft
+
+
+#define ERRNO_EXCEPT ft::errno_exception{__PRETTY_FUNCTION__}
 
 #endif // FT_EXCEPTION_HPP

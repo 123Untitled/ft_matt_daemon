@@ -12,6 +12,7 @@
 
 #include "flock_guard.hpp"
 #include "unique_file.hpp"
+#include "exception.hpp"
 
 #include <sys/file.h>
 
@@ -23,7 +24,7 @@ ft::flock_guard::flock_guard(const ft::unique_file& file)
 : _file{file} {
 
 	if (::flock(_file, LOCK_EX | LOCK_NB) == -1)
-		throw ft::exception{"flock failed"};
+		throw ERRNO_EXCEPT;
 }
 
 /* destructor */

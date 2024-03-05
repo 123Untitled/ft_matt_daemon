@@ -95,6 +95,9 @@ namespace ft {
 			/* listen with backlog */
 			auto listen(const int) const -> void;
 
+			/* reuse address */
+			auto reuse_address(void) const -> void;
+
 
 		private:
 

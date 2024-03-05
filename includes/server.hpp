@@ -21,6 +21,8 @@
 #include "unique_socket.hpp"
 #include "dispatch.hpp"
 
+#include <unordered_map>
+
 
 // -- F T  N A M E S P A C E --------------------------------------------------
 
@@ -90,7 +92,7 @@ namespace ft {
 			ft::dispatch _dispatch;
 
 			/* clients */
-			char _clients[sizeof(ft::client) * 3];
+			std::unordered_map<int, ft::client> _clients;
 
 	}; // class server
 
