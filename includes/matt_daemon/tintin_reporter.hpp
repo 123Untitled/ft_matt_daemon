@@ -3,8 +3,8 @@
 #ifndef FT_TINTIN_REPORTER_HPP
 #define FT_TINTIN_REPORTER_HPP
 
-#include "unique_file.hpp"
-#include "time.hpp"
+#include "matt_daemon/server/unique_file.hpp"
+#include "matt_daemon/time.hpp"
 
 
 // -- F T  N A M E S P A C E --------------------------------------------------
@@ -62,8 +62,8 @@ namespace ft {
 			// -- private lifecycle -------------------------------------------
 
 			/* default constructor */
-			inline tintin_reporter(void)
-			: _file{"/home/untitled/data/ft_matt_daemon/matt_daemon.log", O_RDWR | O_CREAT | O_APPEND, 0600} {
+			tintin_reporter(void)
+			: _file{"/mnt/nfs/homes/artblin/Desktop/ft_matt_daemon/log.log", O_RDWR | O_CREAT | O_APPEND, 0600} {
 				// /var/log/matt_daemon/matt_daemon.log
 			}
 
@@ -86,7 +86,7 @@ namespace ft {
 			// -- private static methods --------------------------------------
 
 			/* shared */
-			static inline auto shared(void) -> self& {
+			static auto shared(void) -> self& {
 				static self instance;
 				return instance;
 			}

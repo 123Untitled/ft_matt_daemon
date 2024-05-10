@@ -1,5 +1,5 @@
-#include "time.hpp"
-#include "exception.hpp"
+#include "matt_daemon/time.hpp"
+#include "matt_daemon/diagnostics/exception.hpp"
 
 #include <time.h>
 

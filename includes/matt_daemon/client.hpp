@@ -1,27 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   server.hpp                                         :+:      :+:    :+:   */
+/*   client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/04 21:43:00 by artblin           #+#    #+#             */
-/*   Updated: 2024/03/04 21:53:35 by artblin          ###   ########.fr       */
+/*   Created: 2024/03/04 21:50:43 by artblin           #+#    #+#             */
+/*   Updated: 2024/05/10 19:26:51 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#ifndef FT_SERVER_HPP
-#define FT_SERVER_HPP
+#ifndef FT_CLIENT_HPP
+#define FT_CLIENT_HPP
 
-#include "client.hpp"
+#include "matt_daemon/notifiable.hpp"
+#include "matt_daemon/server/unique_socket.hpp"
 
-#include "notifiable.hpp"
-#include "unique_socket.hpp"
-#include "dispatch.hpp"
-
-#include <unordered_map>
+#include <cstdint>
 
 
 // -- F T  N A M E S P A C E --------------------------------------------------
@@ -29,47 +26,46 @@
 namespace ft {
 
 
-	// -- S E R V E R ---------------------------------------------------------
+	// -- C L I E N T ---------------------------------------------------------
 
-	class server final : public ft::notifiable {
-
+	class client final : public ft::notifiable {
 
 		public:
 
 			// -- public types ------------------------------------------------
 
 			/* self type */
-			using self = ft::server;
+			using self = ft::client;
 
 
 			// -- public lifecycle --------------------------------------------
 
-			/* default constructor */
-			server(void);
+			/* deleted default constructor */
+			client(void) = delete;
+
+			/* socket constructor */
+			client(ft::unique_socket&&) noexcept;
 
 			/* deleted copy constructor */
-			server(const self&) = delete;
+			client(const self&) = delete;
 
-			/* deleted move constructor */
-			server(self&&) = delete;
+			/* move constructor */
+			client(self&&) noexcept = default;
 
 			/* destructor */
-			~server(void) noexcept = default;
+			~client(void) = default;
 
 
 			// -- public assignment operators ---------------------------------
 
-			/* deleted copy assignment */
+			/* deleted copy assignment operator */
 			auto operator=(const self&) -> self& = delete;
 
-			/* deleted move assignment */
-			auto operator=(self&&) -> self& = delete;
+			/* move assignment operator */
+			auto operator=(self&&) noexcept -> self& = default;
 
 
 			// -- public methods ----------------------------------------------
-
-			/* run */
-			auto run(void) -> void;
 
 			/* notify */
 			auto notify(const ::uint32_t) -> void override;
@@ -88,14 +84,9 @@ namespace ft {
 			/* socket */
 			ft::unique_socket _socket;
 
-			/* dispatcher */
-			ft::dispatch _dispatch;
+	}; // class client
 
-			/* clients */
-			std::unordered_map<int, ft::client> _clients;
-
-	}; // class server
 
 } // namespace _
 
-#endif // SERVER_HPP
+#endif // CLIENT_HPP

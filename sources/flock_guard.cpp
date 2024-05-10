@@ -6,13 +6,13 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:37:46 by artblin           #+#    #+#             */
-/*   Updated: 2024/03/04 22:40:36 by artblin          ###   ########.fr       */
+/*   Updated: 2024/05/10 19:30:42 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "flock_guard.hpp"
-#include "unique_file.hpp"
-#include "exception.hpp"
+#include "matt_daemon/flock_guard.hpp"
+#include "matt_daemon/server/unique_file.hpp"
+#include "matt_daemon/diagnostics/exception.hpp"
 
 #include <sys/file.h>
 

@@ -6,17 +6,17 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:03:45 by artblin           #+#    #+#             */
-/*   Updated: 2024/03/04 22:45:15 by artblin          ###   ########.fr       */
+/*   Updated: 2024/05/10 19:30:04 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "daemon.hpp"
-#include "exception.hpp"
-#include "server.hpp"
-#include "signal.hpp"
-#include "unique_file.hpp"
-#include "flock_guard.hpp"
-#include "write.hpp"
+#include "matt_daemon/daemon.hpp"
+#include "matt_daemon/diagnostics/exception.hpp"
+#include "matt_daemon/server.hpp"
+#include "matt_daemon/signal/signal.hpp"
+#include "matt_daemon/server/unique_file.hpp"
+#include "matt_daemon/flock_guard.hpp"
+#include "matt_daemon/write.hpp"
 
 #include <unistd.h>
 #include <sys/stat.h>
@@ -24,6 +24,8 @@
 #include <cstring>
 #include <sys/file.h>
 #include <sys/types.h>
+
+#include <iostream>
 
 
 auto ft::close_descriptors(void) -> void {
@@ -67,6 +69,8 @@ auto ft::change_directory(const char* path) -> void {
 /* daemon */
 auto ft::launch_daemon(void) -> void {
 
+	std::cout << "launching daemon" << std::endl;
+
 	// fork process
 	auto pid = ft::fork();
 
@@ -93,7 +97,9 @@ auto ft::launch_daemon(void) -> void {
 
 
 	// check if server is already running
-	ft::unique_file file{"/home/untitled/data/ft_matt_daemon/matt_daemon.lock", O_CREAT | O_RDWR, 0666};
+	ft::unique_file file{"/mnt/nfs/homes/artblin/Desktop/ft_matt_daemon/matt.lock", O_CREAT | O_RDWR, 0666};
+
+	std::cout << "lock file created" << std::endl;
 
 	// lock file
 	ft::flock_guard lock{file};

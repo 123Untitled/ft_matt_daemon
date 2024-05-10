@@ -1,4 +1,3 @@
-build/
 exec_*
 
 Matt_daemon
@@ -7,3 +6,8 @@ matt_daemon.lock
 matt_daemon.log
 
 compile_commands.json
+
+/.cache/
+
+/sources/**/*.o
+/sources/**/*.d

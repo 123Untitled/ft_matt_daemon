@@ -6,12 +6,12 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 21:12:59 by artblin           #+#    #+#             */
-/*   Updated: 2024/03/04 21:16:03 by artblin          ###   ########.fr       */
+/*   Updated: 2024/05/10 19:33:03 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "dispatch.hpp"
-#include "signal.hpp"
+#include "matt_daemon/server/dispatch.hpp"
+#include "matt_daemon/signal/signal.hpp"
 
 
 // -- public lifecycle --------------------------------------------------------

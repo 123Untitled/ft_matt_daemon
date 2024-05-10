@@ -6,12 +6,12 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 21:38:11 by artblin           #+#    #+#             */
-/*   Updated: 2024/03/04 21:39:53 by artblin          ###   ########.fr       */
+/*   Updated: 2024/05/10 19:31:07 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "unique_file.hpp"
-#include "exception.hpp"
+#include "matt_daemon/server/unique_file.hpp"
+#include "matt_daemon/diagnostics/exception.hpp"
 
 
 // -- public methods ----------------------------------------------------------

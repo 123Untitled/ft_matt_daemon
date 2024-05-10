@@ -6,13 +6,13 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 21:24:13 by artblin           #+#    #+#             */
-/*   Updated: 2024/03/04 22:46:32 by artblin          ###   ########.fr       */
+/*   Updated: 2024/05/10 19:32:24 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "unique_socket.hpp"
-#include "exception.hpp"
-#include "address.hpp"
+#include "matt_daemon/server/unique_socket.hpp"
+#include "matt_daemon/diagnostics/exception.hpp"
+#include "matt_daemon/server/address.hpp"
 
 #include <sys/socket.h>
 #include <string.h>

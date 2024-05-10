@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 20:39:45 by artblin           #+#    #+#             */
-/*   Updated: 2024/03/04 21:16:39 by artblin          ###   ########.fr       */
+/*   Updated: 2024/05/10 19:29:04 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,12 @@
 #define FT_DISPATCH_HPP
 
 #include "unique_descriptor.hpp"
-#include "exception.hpp"
+#include "matt_daemon/diagnostics/exception.hpp"
 
 #include <concepts>
 #include <sys/epoll.h>
 
-#include "notifiable.hpp"
+#include "matt_daemon/notifiable.hpp"
 
 // -- F T  N A M E S P A C E --------------------------------------------------
 

@@ -3,8 +3,9 @@
 #define SIGNAL_HPP
 
 #include <csignal>
-#include "is_running.hpp"
-#include "exception.hpp"
+#include "matt_daemon/is_running.hpp"
+#include "matt_daemon/diagnostics/exception.hpp"
+
 
 
 // -- _  N A M E S P A C E ----------------------------------------------------
@@ -51,7 +52,7 @@ namespace _ {
 			// -- private lifecycle -------------------------------------------
 
 			/* default constructor */
-			inline signal(void) {
+			signal(void) {
 
 				// setup signal handler
 				::signal(SIGINT, self::handler);
@@ -82,20 +83,20 @@ namespace _ {
 			// -- private static methods --------------------------------------
 
 			/* shared */
-			static inline auto shared(void) -> self& {
+			static auto shared(void) -> self& {
 				static self instance;
 				return instance;
 			}
 
 			/* add set */
 			template <int S>
-			static inline auto add_set(::sigset_t& set) -> void {
+			static auto add_set(::sigset_t& set) -> void {
 				if (::sigaddset(&set, S) != 0)
 					throw ft::exception{"sigaddset failed"};
 			}
 
 			/* handler */
-			static inline auto handler(const int signum) -> void {
+			static auto handler(const int signum) -> void {
 
 				::write(STDOUT_FILENO, "signal received\n", 16);
 
