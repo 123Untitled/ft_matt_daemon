@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 21:12:59 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/10 19:33:03 by artblin          ###   ########.fr       */
+/*   Updated: 2024/05/27 20:38:20 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@
 ft::dispatch::dispatch(void)
 :	_epoll{::epoll_create1(0)},
 	_events{},
-	_mask{_::signal::set<SIGINT, SIGTERM, SIGQUIT>()} {
+	_clients{},
+	_mask{ft::signal::set<SIGINT, SIGTERM, SIGQUIT>()} {
 
 	if (not _epoll)
 		throw ERRNO_EXCEPT;
@@ -30,7 +31,7 @@ ft::dispatch::dispatch(void)
 // -- public methods ----------------------------------------------------------
 
 /* wait */
-auto ft::dispatch::wait(void) -> void {
+auto ft::dispatch::_wait(void) -> void {
 
 	/* wait for events */
 	const int result = ::epoll_pwait(_epoll, _events, MAX_EVENTS, TIMEOUT, &_mask);
@@ -41,19 +42,24 @@ auto ft::dispatch::wait(void) -> void {
 
 	// loop over events
 	for (int i = 0; i < result; ++i) {
-		// notify observer
-		reinterpret_cast<ft::notifiable*>
-			(_events[i].data.ptr)->notify(_events[i].events);
+
+		// get event type
+		const auto type = _events[i].events;
+
+		if (type & EPOLLERR or type & EPOLLHUP) {
+			continue;
+		}
+
+		if (type & EPOLLIN) {
+			// notify observer
+			reinterpret_cast<ft::io_event*>
+				(_events[i].data.ptr)->receive();
+		}
+
+		if (type & EPOLLOUT) {
+			// notify observer
+			reinterpret_cast<ft::io_event*>
+				(_events[i].data.ptr)->send();
+		}
 	}
-}
-
-
-// -- friends -----------------------------------------------------------------
-
-/* del */
-auto ft::del(ft::notifiable& observer, const ft::dispatch& dispatcher) -> void {
-
-	// remove event
-	if (::epoll_ctl(dispatcher._epoll, EPOLL_CTL_DEL, observer.socket(), nullptr) != 0)
-		throw ERRNO_EXCEPT;
 }

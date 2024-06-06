@@ -1,12 +1,9 @@
 #include "matt_daemon/server.hpp"
 #include "matt_daemon/server/address.hpp"
 #include "matt_daemon/is_running.hpp"
-#include "matt_daemon/write.hpp"
 #include "matt_daemon/tintin_reporter.hpp"
 
-#include <iostream>
-
-
+#include <memory>
 
 
 
@@ -14,7 +11,7 @@
 
 /* port constructor */
 ft::server::server(void)
-: _socket{AF_INET, SOCK_STREAM}, _dispatch{} {
+: _socket{AF_INET, SOCK_STREAM} {
 
 	// set non-blocking mode
 	_socket.non_blocking();
@@ -31,60 +28,39 @@ ft::server::server(void)
 	// listen for connections (default SOMAXCONN)
 	_socket.listen();
 
-	// add server to epoll dispatcher
-	ft::add<EPOLLIN | EPOLLET>(*this, _dispatch);
-
-
+	// log server initialized
 	ft::tintin_reporter::log("server initialized");
 }
 
 
 // -- public methods ----------------------------------------------------------
 
-/* run */
-auto ft::server::run(void) -> void {
 
-	while (is::running::state()) {
-
-		// run dispatcher
-		_dispatch.wait();
-	}
+/* send */
+auto ft::server::send(void) -> void {
 }
 
-/* notify */
-auto ft::server::notify(const uint32_t events) -> void {
+/* receive */
+auto ft::server::receive(void) -> void {
 
+	// log connection
+	ft::tintin_reporter::log("server accepting connection");
 
-	// check for read
-	if (events & EPOLLIN) {
+	// accept connection
+	auto socket = _socket.accept();
 
-		try {
-			// accept connection
-			auto socket = _socket.accept();
+	// set non-blocking mode
+	socket.non_blocking();
 
-			// set non-blocking mode
-			socket.non_blocking();
+	// create client
+	std::unique_ptr<ft::io_event> client
+		= std::make_unique<ft::client>(std::move(socket));
 
-			auto client = _clients.emplace(static_cast<int>(socket),
-										   std::move(socket));
+	// add client to epoll dispatcher
+	ft::dispatch::add(std::move(client));
 
-			if (not client.second) {
-				throw ft::exception{"client emplace failed"};
-			}
-
-			// add client to epoll dispatcher
-			ft::add<EPOLLIN | EPOLLET>(client.first->second, _dispatch);
-
-
-			ft::tintin_reporter::log("client connected");
-
-		}
-		catch (const ft::exception& e) {
-			ft::tintin_reporter::error(e.what());
-		}
-
-	}
-
+	// log connection
+	ft::tintin_reporter::log("client connected");
 }
 
 
@@ -94,5 +70,3 @@ auto ft::server::notify(const uint32_t events) -> void {
 auto ft::server::socket(void) const noexcept -> int {
 	return _socket;
 }
-
-

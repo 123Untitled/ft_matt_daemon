@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 20:13:47 by artblin           #+#    #+#             */
-/*   Updated: 2024/03/04 20:14:31 by artblin          ###   ########.fr       */
+/*   Updated: 2024/05/27 14:12:03 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,23 +39,20 @@ namespace ft {
 			// -- public lifecycle --------------------------------------------
 
 			/* default constructor */
-			inline constexpr exception(void) noexcept
-			: _what{} {
+			constexpr exception(void) noexcept
+			: _what{"unknown exception"} {
 			}
 
 			/* what constructor */
-			template <typename... S>
-			inline constexpr explicit exception(const S*... what) noexcept
-			: _what{} {
-
-
+			constexpr explicit exception(const char* what) noexcept
+			: _what{what} {
 			}
 
-			/* deleted copy constructor */
-			exception(const self&) = delete;
+			/* copy constructor */
+			constexpr exception(const self&) noexcept = default;
 
-			/* deleted move constructor */
-			exception(self&&) = delete;
+			/* move constructor */
+			constexpr exception(self&&) noexcept = default;
 
 			/* destructor */
 			virtual ~exception(void) noexcept = default;
@@ -64,17 +61,17 @@ namespace ft {
 			// -- public assignment operators ---------------------------------
 
 			/* deleted copy assignment operator */
-			auto operator=(const self&) -> self& = delete;
+			constexpr auto operator=(const self&) noexcept -> self& = default;
 
 			/* deleted move assignment operator */
-			auto operator=(self&&) -> self& = delete;
+			constexpr auto operator=(self&&) noexcept -> self& = default;
 
 
 			// -- public virtual methods --------------------------------------
 
 			/* what */
-			virtual inline auto what(void) const noexcept -> const char* {
-				return *_what != '\0' ? _what : "unknown exception";
+			virtual auto what(void) const noexcept -> const char* {
+				return _what;
 			}
 
 
@@ -83,7 +80,7 @@ namespace ft {
 			// -- private members ---------------------------------------------
 
 			/* what */
-			const char _what[1024];
+			const char* _what;
 
 	}; // class exception
 
@@ -105,7 +102,7 @@ namespace ft {
 			// -- public lifecycle --------------------------------------------
 
 			/* default constructor */
-			inline constexpr errno_exception(const char* where) noexcept
+			constexpr errno_exception(const char* where) noexcept
 			: _what{} {
 
 				unsigned int i = 0;
@@ -150,7 +147,7 @@ namespace ft {
 
 
 			/* what */
-			inline auto what(void) const noexcept -> const char* override {
+			auto what(void) const noexcept -> const char* override {
 				return _what;
 			}
 

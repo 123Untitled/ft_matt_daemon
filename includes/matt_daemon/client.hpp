@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 21:50:43 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/10 19:26:51 by artblin          ###   ########.fr       */
+/*   Updated: 2024/05/27 15:24:27 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #ifndef FT_CLIENT_HPP
 #define FT_CLIENT_HPP
 
-#include "matt_daemon/notifiable.hpp"
+#include "matt_daemon/io_event.hpp"
 #include "matt_daemon/server/unique_socket.hpp"
 
 #include <cstdint>
@@ -28,7 +28,7 @@ namespace ft {
 
 	// -- C L I E N T ---------------------------------------------------------
 
-	class client final : public ft::notifiable {
+	class client final : public ft::io_event {
 
 		public:
 
@@ -67,8 +67,11 @@ namespace ft {
 
 			// -- public methods ----------------------------------------------
 
-			/* notify */
-			auto notify(const ::uint32_t) -> void override;
+			/* send */
+			auto send(void) -> void override;
+
+			/* receive */
+			auto receive(void) -> void override;
 
 
 			// -- public accessors --------------------------------------------

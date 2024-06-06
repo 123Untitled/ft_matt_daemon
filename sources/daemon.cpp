@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:03:45 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/10 19:30:04 by artblin          ###   ########.fr       */
+/*   Updated: 2024/05/27 20:38:03 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,20 +65,28 @@ auto ft::change_directory(const char* path) -> void {
 		throw ERRNO_EXCEPT;
 }
 
+/* is root */
+auto ft::is_root(void) -> void {
+
+	if (::geteuid() != 0)
+		throw ft::exception{"You must be root to execute this program"};
+}
+
 
 /* daemon */
 auto ft::launch_daemon(void) -> void {
 
-	std::cout << "launching daemon" << std::endl;
+	// check we have root privileges
+	//ft::is_root();
 
 	// fork process
-	auto pid = ft::fork();
+	const auto pid = ft::fork();
 
 	// return in parent process
 	if (pid > 0) return;
 
 	// create new session
-	ft::new_session();
+	(void)ft::new_session();
 
 	//::umask(0);
 
@@ -95,24 +103,23 @@ auto ft::launch_daemon(void) -> void {
 	//	{"/dev/null", O_WRONLY}
 	//};
 
-
 	// check if server is already running
-	ft::unique_file file{"/mnt/nfs/homes/artblin/Desktop/ft_matt_daemon/matt.lock", O_CREAT | O_RDWR, 0666};
-
-	std::cout << "lock file created" << std::endl;
+	ft::unique_file file{
+		"/mnt/nfs/homes/artblin/Desktop/ft_matt_daemon/matt.lock",
+		O_CREAT | O_RDWR, 0666
+	};
 
 	// lock file
 	ft::flock_guard lock{file};
 
-	_::signal::setup();
+	ft::signal::setup();
 
 	// create server
-	ft::server server;
+	std::unique_ptr<ft::io_event> server = std::make_unique<ft::server>();
 
-	// start running
-	is::running::start();
+	//ft::server server;
+	ft::dispatch::add(std::move(server));
 
 	// run server
-	server.run();
-
+	ft::dispatch::run();
 }

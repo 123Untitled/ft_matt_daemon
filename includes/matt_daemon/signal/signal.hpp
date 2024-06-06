@@ -8,9 +8,9 @@
 
 
 
-// -- _  N A M E S P A C E ----------------------------------------------------
+// -- F T  N A M E S P A C E --------------------------------------------------
 
-namespace _ {
+namespace ft {
 
 
 	// -- S I G N A L ---------------------------------------------------------
@@ -23,13 +23,13 @@ namespace _ {
 			// -- public types ------------------------------------------------
 
 			/* self type */
-			using self = _::signal;
+			using self = ft::signal;
 
 
 			// -- public static methods ---------------------------------------
 
 			/* setup */
-			static inline auto setup(void) -> void {
+			static auto setup(void) -> void {
 				static_cast<void>(self::shared());
 			}
 

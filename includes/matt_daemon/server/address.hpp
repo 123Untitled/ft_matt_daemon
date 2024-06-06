@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 21:28:50 by artblin           #+#    #+#             */
-/*   Updated: 2024/03/04 21:29:02 by artblin          ###   ########.fr       */
+/*   Updated: 2024/05/27 15:11:15 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
-#include <string_view>
 
 
 // -- F T  N A M E S P A C E --------------------------------------------------
@@ -42,12 +40,12 @@ namespace ft {
 			// -- public lifecycle --------------------------------------------
 
 			/* default constructor */
-			inline constexpr address(void) noexcept
+			constexpr address(void) noexcept
 			: _addr{}, _size{0} {
 			}
 
 			/* ipv4 constructor */
-			inline constexpr address(const ::in_addr& ip, const ::in_port_t port) noexcept
+			constexpr address(const ::in_addr& ip, const ::in_port_t port) noexcept
 			: _addr{}, _size{sizeof(::sockaddr_in)} {
 				// interpret as ipv4
 				auto& addr = this->as_ipv4();
@@ -58,7 +56,7 @@ namespace ft {
 			}
 
 			/* ipv6 constructor */
-			inline constexpr address(const ::in6_addr& ip, const ::in_port_t port) noexcept
+			constexpr address(const ::in6_addr& ip, const ::in_port_t port) noexcept
 			: _addr{}, _size{sizeof(::sockaddr_in6)} {
 				// interpret as ipv6
 				auto& addr = this->as_ipv6();
@@ -90,54 +88,54 @@ namespace ft {
 			// -- public accessors --------------------------------------------
 
 			/* size */
-			inline constexpr auto size(void) noexcept -> ::socklen_t& {
+			constexpr auto size(void) noexcept -> ::socklen_t& {
 				return _size;
 			}
 
 			/* const size */
-			inline constexpr auto size(void) const noexcept -> const ::socklen_t& {
+			constexpr auto size(void) const noexcept -> const ::socklen_t& {
 				return _size;
 			}
 
 
 			/* is ipv4 */
-			inline constexpr auto is_ipv4(void) const noexcept -> bool {
+			constexpr auto is_ipv4(void) const noexcept -> bool {
 				return _addr.ss_family == AF_INET;
 			}
 
 			/* is ipv6 */
-			inline constexpr auto is_ipv6(void) const noexcept -> bool {
+			constexpr auto is_ipv6(void) const noexcept -> bool {
 				return _addr.ss_family == AF_INET6;
 			}
 
 
 			/* as ipv4 */
-			inline constexpr auto as_ipv4(void) noexcept -> ::sockaddr_in& {
+			constexpr auto as_ipv4(void) noexcept -> ::sockaddr_in& {
 				return *static_cast<::sockaddr_in*>(static_cast<void*>(&_addr));
 			}
 
 			/* const as ipv4 */
-			inline constexpr auto as_ipv4(void) const noexcept -> const ::sockaddr_in& {
+			constexpr auto as_ipv4(void) const noexcept -> const ::sockaddr_in& {
 				return *static_cast<const ::sockaddr_in*>(static_cast<const void*>(&_addr));
 			}
 
 			/* as ipv6 */
-			inline constexpr auto as_ipv6(void) noexcept -> ::sockaddr_in6& {
+			constexpr auto as_ipv6(void) noexcept -> ::sockaddr_in6& {
 				return *static_cast<::sockaddr_in6*>(static_cast<void*>(&_addr));
 			}
 
 			/* const as ipv6 */
-			inline constexpr auto as_ipv6(void) const noexcept -> const ::sockaddr_in6& {
+			constexpr auto as_ipv6(void) const noexcept -> const ::sockaddr_in6& {
 				return *static_cast<const ::sockaddr_in6*>(static_cast<const void*>(&_addr));
 			}
 
 			/* as sockaddr */
-			inline constexpr auto as_sockaddr(void) noexcept -> ::sockaddr& {
+			constexpr auto as_sockaddr(void) noexcept -> ::sockaddr& {
 				return *static_cast<::sockaddr*>(static_cast<void*>(&_addr));
 			}
 
 			/* const as sockaddr */
-			inline constexpr auto as_sockaddr(void) const noexcept -> const ::sockaddr& {
+			constexpr auto as_sockaddr(void) const noexcept -> const ::sockaddr& {
 				return *static_cast<const ::sockaddr*>(static_cast<const void*>(&_addr));
 			}
 
@@ -146,7 +144,7 @@ namespace ft {
 			// -- public modifiers --------------------------------------------
 
 			/* clear */
-			inline constexpr auto clear(void) noexcept -> void {
+			constexpr auto clear(void) noexcept -> void {
 				_addr = {};
 				_size = sizeof(::sockaddr_storage);
 			}
@@ -162,17 +160,7 @@ namespace ft {
 			/* size */
 			::socklen_t        _size;
 
-
 	}; // class address
-
-
-	inline auto presentation_to_network(const std::string_view& ip, ::in_addr& addr) noexcept -> bool {
-		return ::inet_pton(AF_INET, ip.data(), &addr) == 1;
-	}
-
-	inline auto presentation_to_network(const std::string_view& ip, ::in6_addr& addr) noexcept -> bool {
-		return ::inet_pton(AF_INET6, ip.data(), &addr) == 1;
-	}
 
 } // namespace network
 

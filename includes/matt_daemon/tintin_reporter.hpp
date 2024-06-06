@@ -31,13 +31,17 @@ namespace ft {
 			static auto log(const char* message) -> void {
 				const char* time = ft::time();
 
-				self& reporter = self::shared();
+				ft::unique_file file{
+					"/mnt/nfs/homes/artblin/Desktop/ft_matt_daemon/matt_daemon.log",
+					O_RDWR | O_CREAT | O_APPEND,
+					0600};
 
-				reporter._file.write(time, __builtin_strlen(time));
-				reporter._file.write(" ", 1);
-				reporter._file.write(message, __builtin_strlen(message));
-				reporter._file.write("\n", 1);
+				//self& reporter = self::shared();
 
+				file.write(time, __builtin_strlen(time));
+				file.write(" ", 1U);
+				file.write(message, __builtin_strlen(message));
+				file.write("\n", 1U);
 			}
 
 			/* info */
@@ -46,14 +50,6 @@ namespace ft {
 
 			/* error */
 			static auto error(const char* message) -> void {
-				const char* time = ft::time();
-
-				self& reporter = self::shared();
-
-				reporter._file.write(time, __builtin_strlen(time));
-				reporter._file.write(" ", 1);
-				reporter._file.write(message, __builtin_strlen(message));
-				reporter._file.write("\n", 1);
 			}
 
 
@@ -62,8 +58,8 @@ namespace ft {
 			// -- private lifecycle -------------------------------------------
 
 			/* default constructor */
-			tintin_reporter(void)
-			: _file{"/mnt/nfs/homes/artblin/Desktop/ft_matt_daemon/log.log", O_RDWR | O_CREAT | O_APPEND, 0600} {
+			tintin_reporter(void) {
+			//: _file{"/mnt/nfs/homes/artblin/Desktop/ft_matt_daemon/matt_daemon.log", O_RDWR | O_CREAT | O_APPEND, 0600} {
 				// /var/log/matt_daemon/matt_daemon.log
 			}
 
@@ -95,7 +91,7 @@ namespace ft {
 			// -- private members ---------------------------------------------
 
 			/* file */
-			ft::unique_file _file;
+			//ft::unique_file _file;
 
 	}; // class tintin_reporter
 

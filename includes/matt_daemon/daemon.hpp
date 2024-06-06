@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:04:17 by artblin           #+#    #+#             */
-/*   Updated: 2024/03/04 22:09:54 by artblin          ###   ########.fr       */
+/*   Updated: 2024/05/27 14:06:30 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #define FT_DAEMON_HPP
 
 #include <unistd.h>
+
 
 // -- F T  N A M E S P A C E --------------------------------------------------
 
@@ -33,6 +34,9 @@ namespace ft {
 
 	/* change directory */
 	static auto change_directory(const char*) -> void;
+
+	/* is root */
+	static auto is_root(void) -> void;
 
 	/* close file descriptors */
 	static auto close_descriptors(void) -> void;

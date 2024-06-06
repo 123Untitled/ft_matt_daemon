@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 20:39:45 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/10 19:29:04 by artblin          ###   ########.fr       */
+/*   Updated: 2024/05/27 20:05:39 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,32 +17,20 @@
 
 #include "unique_descriptor.hpp"
 #include "matt_daemon/diagnostics/exception.hpp"
+#include "matt_daemon/is_running.hpp"
 
-#include <concepts>
+#include "matt_daemon/tintin_reporter.hpp"
+
 #include <sys/epoll.h>
 
-#include "matt_daemon/notifiable.hpp"
+#include "matt_daemon/io_event.hpp"
+#include <vector>
+#include <memory>
+
 
 // -- F T  N A M E S P A C E --------------------------------------------------
 
 namespace ft {
-
-
-	/* is event */
-	template <::uint32_t E>
-	concept is_event = (E & ~(EPOLLIN
-							| EPOLLOUT
-							| EPOLLRDHUP
-							| EPOLLPRI
-							| EPOLLERR
-							| EPOLLHUP
-							| EPOLLET
-							| EPOLLONESHOT)) == 0;
-
-    // EPOLLIN EPOLLPRI EPOLLOUT EPOLLRDNORM EPOLLRDBAND
-    // EPOLLWRNORM EPOLLWRBAND EPOLLMSG EPOLLERR EPOLLHUP
-    // EPOLLRDHUP EPOLLEXCLUSIVE EPOLLWAKEUP EPOLLONESHOT
-    // EPOLLET
 
 
 	// -- D I S P A T C H -----------------------------------------------------
@@ -60,17 +48,11 @@ namespace ft {
 
 			// -- public lifecycle --------------------------------------------
 
-			/* default constructor */
-			dispatch(void);
-
 			/* deleted copy constructor */
 			dispatch(const self&) = delete;
 
 			/* deleted move constructor */
 			dispatch(self&&) = delete;
-
-			/* destructor */
-			~dispatch(void) noexcept = default;
 
 
 			// -- public assignment operators ---------------------------------
@@ -82,10 +64,74 @@ namespace ft {
 			auto operator=(self&&) -> self& = delete;
 
 
+			// -- public static methods ---------------------------------------
+
+			/* add */
+			static auto add(std::unique_ptr<ft::io_event>&& ev) -> void {
+
+				auto& instance = self::shared();
+
+				// check clients count
+				if (instance._clients.size() == 3U)
+					throw ft::exception("too many clients");
+
+				// add client
+				instance._clients.emplace_back(std::move(ev));
+
+				auto& client = instance._clients.back();
+
+				// create event
+				struct epoll_event event {
+					.events = EPOLLIN,
+					.data { .ptr = reinterpret_cast<void*>(client.get()) }
+				};
+
+				// add event
+				if (::epoll_ctl(self::shared()._epoll, EPOLL_CTL_ADD, client->socket(), &event) != 0)
+					throw ERRNO_EXCEPT;
+			}
+
+			/* del */
+			static auto del(ft::io_event& ev) -> void {
+
+				// remove event
+				if (::epoll_ctl(self::shared()._epoll, EPOLL_CTL_DEL, ev.socket(), nullptr) != 0)
+					throw ERRNO_EXCEPT;
+
+				auto& instance = self::shared();
+
+				// remove client
+				for (auto it = instance._clients.begin(); it != instance._clients.end(); ++it) {
+					const auto& client = *it;
+					if (client->socket() == ev.socket()) {
+						instance._clients.erase(it);
+						break;
+					}
+				}
+
+			}
+
+
+
 			// -- public methods ----------------------------------------------
 
-			/* wait */
-			auto wait(void) -> void;
+			/* run */
+			static auto run(void) -> void {
+
+				// start running
+				is::running::start();
+
+				ft::tintin_reporter::log("server running");
+
+				while (is::running::state()) {
+					try {
+						self::shared()._wait();
+					}
+					catch (const ft::exception& e) {
+						ft::tintin_reporter::error(e.what());
+					}
+				}
+			}
 
 
 		private:
@@ -95,7 +141,31 @@ namespace ft {
 			enum : int { TIMEOUT = 500, MAX_EVENTS = 256 };
 
 
+			// -- private lifecycle -------------------------------------------
+
+			/* default constructor */
+			dispatch(void);
+
+			/* destructor */
+			~dispatch(void) noexcept = default;
+
+
+			// -- private static methods --------------------------------------
+
+			/* shared */
+			static auto shared(void) -> self& {
+				static self instance;
+				return instance;
+			}
+
+
 			// -- private methods ---------------------------------------------
+
+			/* wait */
+			auto _wait(void) -> void;
+
+
+			// -- private members ---------------------------------------------
 
 			/* epoll instance */
 			ft::unique_descriptor _epoll;
@@ -103,64 +173,13 @@ namespace ft {
 			/* events */
 			struct ::epoll_event _events[MAX_EVENTS];
 
+			/* clients */
+			std::vector<std::unique_ptr<ft::io_event>> _clients;
+
 			/* sigset */
 			const ::sigset_t _mask;
 
-
-		// -- friends ---------------------------------------------------------
-
-		/* add as friend */
-		template <::uint32_t>
-		friend auto add(ft::notifiable&, const self&) -> void;
-
-		/* mod as friend */
-		template <::uint32_t>
-		friend auto mod(ft::notifiable&, const self&) -> void;
-
-		/* del as friend */
-		friend auto del(ft::notifiable&, const self&) -> void;
-
 	}; // class dispatch
-
-
-
-	/* add */
-	template <::uint32_t E>
-	auto add(ft::notifiable& observer, const ft::dispatch& dispatcher) -> void {
-
-		static_assert(ft::is_event<E>, "requires valid epoll event");
-
-		// create event
-		struct epoll_event event {
-			.events = E,
-			.data { .ptr = reinterpret_cast<void*>(&observer) }
-		};
-
-		// add event
-		if (::epoll_ctl(dispatcher._epoll, EPOLL_CTL_ADD, observer.socket(), &event) != 0)
-			throw ERRNO_EXCEPT;
-	}
-
-	/* mod */
-	template <::uint32_t E>
-	auto mod(ft::notifiable& observer, const ft::dispatch& dispatcher) -> void {
-
-		static_assert(ft::is_event<E>, "requires valid epoll event");
-
-		// create event
-		struct epoll_event event {
-			.events = E,
-			.data { .ptr = reinterpret_cast<void*>(&observer) }
-		};
-
-		// modify event
-		if (::epoll_ctl(dispatcher._epoll, EPOLL_CTL_MOD, observer.socket(), &event) != 0)
-			throw ERRNO_EXCEPT;
-	}
-
-	/* del */
-	auto del(ft::notifiable&, const ft::dispatch&) -> void;
-
 
 } // namespace ft
 

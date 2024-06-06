@@ -6,15 +6,19 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 21:53:47 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/10 19:27:06 by artblin          ###   ########.fr       */
+/*   Updated: 2024/05/27 20:08:13 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "matt_daemon/client.hpp"
 #include "matt_daemon/write.hpp"
+#include "matt_daemon/tintin_reporter.hpp"
+#include "matt_daemon/server/dispatch.hpp"
 
 #include <utility>
+#include <string>
 #include <sys/epoll.h>
+#include <sys/socket.h>
 
 
 // -- public lifecycle --------------------------------------------------------
@@ -28,68 +32,42 @@ ft::client::client(ft::unique_socket&& socket) noexcept
 
 // -- public methods ----------------------------------------------------------
 
-/* notify */
-auto ft::client::notify(const ::uint32_t events) -> void {
+/* send */
+auto ft::client::send(void) -> void {
+}
 
-	if (events & EPOLLIN) {
-		ft::write("client epollin\n");
-		//
-		//static bool accepted = false;
-		//
-		//bool state = false;
-		//
-		//if (accepted == false) {
-		//	// ssl accept
-		//	try {
-		//		::write(STDOUT_FILENO, "trying to accept\n", 18);
-		//		state = _connection.accept();
-		//	}
-		//	catch (const _::exception& e) {
-		//		std::cout << e.what() << std::endl;
-		//	}
-		//
-		//	if (state == false)
-		//		return;
-		//
-		//	accepted = true;
-		//}
-		//
-		//::write(STDOUT_FILENO, "starting to read\n", 17);
-		//
-		//
-		//// read from socket
-		//
-		//while (true) {
-		//	char buffer[1024];
-		//	//auto bytes = recv(_socket, buffer, sizeof(buffer), 0);
-		//	auto bytes = _connection.read<1024>(buffer);
-		//
-		//	if (bytes == -1) {
-		//		if (errno == EAGAIN || errno == EWOULDBLOCK)
-		//			break;
-		//		else {
-		//			std::cout << "recv failed" << std::endl;
-		//			break;
-		//		}
-		//	}
-		//	else if (bytes == 0) {
-		//		std::cout << "client disconnected" << std::endl;
-		//		break;
-		//	}
-		//	else {
-		//		std::cout << "received " << bytes << " bytes" << std::endl;
-		//
-		//		write(STDOUT_FILENO, buffer, bytes);
-		//	}
-		//}
-		//
-		//::write(STDOUT_FILENO, "writing anwser\n", 15);
-		//_connection.write<1024>("HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n");
+/* receive */
+auto ft::client::receive(void) -> void {
 
+
+	std::string str;
+
+	while (true) {
+
+		char buffer[1024];
+		auto bytes = ::recv(_socket, buffer, sizeof(buffer), 0);
+
+		if (bytes < 0) {
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+				break;
+			else {
+				throw ERRNO_EXCEPT;
+			}
+		}
+		else if (bytes == 0) {
+			// disconnect
+			ft::tintin_reporter::log("client disconnected");
+			ft::dispatch::del(*this);
+			return;
+		}
+		else {
+			str.append(buffer, static_cast<std::size_t>(bytes));
+		}
 	}
-	else
-		ft::write("other event\n");
 
+	if (str.empty())
+		return;
+	ft::tintin_reporter::log(str.data());
 }
 
 

@@ -1,28 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   server.hpp                                         :+:      :+:    :+:   */
+/*   io_event.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/04 21:43:00 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/27 19:18:37 by artblin          ###   ########.fr       */
+/*   Created: 2024/05/27 15:12:06 by artblin           #+#    #+#             */
+/*   Updated: 2024/05/27 19:17:55 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#ifndef FT_SERVER_HPP
-#define FT_SERVER_HPP
-
-#include "client.hpp"
-
-#include "matt_daemon/notifiable.hpp"
-#include "matt_daemon/io_event.hpp"
-#include "matt_daemon/server/unique_socket.hpp"
-#include "matt_daemon/server/dispatch.hpp"
-
-#include <unordered_map>
+#ifndef FT_IO_EVENT_HPP
+#define FT_IO_EVENT_HPP
 
 
 // -- F T  N A M E S P A C E --------------------------------------------------
@@ -30,67 +21,55 @@
 namespace ft {
 
 
-	// -- S E R V E R ---------------------------------------------------------
+	// -- I O  E V E N T ------------------------------------------------------
 
-	class server final : public ft::io_event {
-
+	class io_event {
 
 		public:
 
 			// -- public types ------------------------------------------------
 
 			/* self type */
-			using self = ft::server;
+			using self = ft::io_event;
 
 
 			// -- public lifecycle --------------------------------------------
 
 			/* default constructor */
-			server(void);
+			constexpr io_event(void) noexcept = default;
 
 			/* deleted copy constructor */
-			server(const self&) = delete;
+			io_event(const self&) = delete;
 
 			/* move constructor */
-			server(self&&) noexcept = default;
+			constexpr io_event(self&&) noexcept = default;
 
 			/* destructor */
-			~server(void) noexcept = default;
+			virtual ~io_event(void) = default;
 
 
 			// -- public assignment operators ---------------------------------
 
 			/* deleted copy assignment operator */
-			auto operator=(const self&) -> self& = delete;
+			auto operator=(const self&) noexcept -> self& = delete;
 
 			/* move assignment operator */
 			auto operator=(self&&) noexcept -> self& = default;
 
 
-			// -- public methods ----------------------------------------------
+			// -- public interface --------------------------------------------
 
 			/* send */
-			auto send(void) -> void override;
+			virtual auto send(void) -> void = 0;
 
 			/* receive */
-			auto receive(void) -> void override;
-
-
-			// -- public accessors --------------------------------------------
+			virtual auto receive(void) -> void = 0;
 
 			/* socket */
-			auto socket(void) const noexcept -> int override;
+			virtual auto socket(void) const noexcept -> int = 0;
 
+	}; // class io_event
 
-		private:
+} // namespace ft
 
-			// -- private members ---------------------------------------------
-
-			/* socket */
-			ft::unique_socket _socket;
-
-	}; // class server
-
-} // namespace _
-
-#endif // SERVER_HPP
+#endif // FT_IO_EVENT_HPP
