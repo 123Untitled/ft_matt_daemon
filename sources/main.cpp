@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 19:55:53 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/27 17:28:51 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/06 21:39:23 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "matt_daemon/diagnostics/exception.hpp"
 #include "matt_daemon/tintin_reporter.hpp"
 
-#include <iostream>
+#include <cstdlib>
 
 int main(void) {
 
