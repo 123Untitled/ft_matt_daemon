@@ -6,7 +6,7 @@
 #    By: artblin <artblin@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 19:37:03 by artblin           #+#    #+#              #
-#    Updated: 2024/05/10 19:38:06 by artblin          ###   ########.fr        #
+#    Updated: 2024/05/27 20:10:13 by artblin          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -165,7 +165,7 @@ endef
 
 # -- M A I N  T A R G E T S ---------------------------------------------------
 
-all: ascii $(EXEC)
+all: ascii $(EXEC) $(COMPILE_DB)
 	$(call LINES)
 	$(call COLOR,"done ◝(ᵔᵕᵔ)◜")
 	echo -n '\n'
@@ -181,6 +181,11 @@ $(EXEC): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(DEPFLAGS) -c $< -o $@
 	print -f '- %s\n' $@
 
+$(COMPILE_DB): $(SRCS) Makefile
+	$(call LINES)
+	$(call COLOR,"generating compile_commands.json")
+	$(call GENERATE_CDB)
+
 
 
 # -- C L E A N I N G ----------------------------------------------------------
@@ -192,7 +197,7 @@ clean:
 
 fclean: clean
 	$(call COLOR,"full cleaning project")
-	$(RM) $(EXEC)
+	$(RM) $(EXEC) $(COMPILE_DB)
 
 
 # -- L E A K S ----------------------------------------------------------------
@@ -219,4 +224,15 @@ ascii:
 		'\t\t\tGNU Make:' $(MAKE_VERSION)'\x1b[0m\n'
 
 
-
+# generate compile_commands.json
+define GENERATE_CDB
+CONTENT='[\n'
+for FILE in $(SRCS); do
+CONTENT+='\t{\n\t\t"directory": "'$$(pwd)'",\n\t\t"file": "'$$FILE'",\n\t\t"output": "'$${FILE%.cpp}.o'",\n\t\t"arguments": [\n\t\t\t"$(CXX)",\n'
+	for FLAG in $(CXXFLAGS); do
+		CONTENT+='\t\t\t"'$$FLAG'",\n'
+	done
+	CONTENT+='\t\t\t"-c",\n\t\t\t"'$$FILE'",\n\t\t\t"-o",\n\t\t\t"'$${FILE%.cpp}'.o"\n\t\t]\n\t},\n'
+done
+echo $${CONTENT%',\n'}'\n]' > $@
+endef
