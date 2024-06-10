@@ -5,6 +5,7 @@
 #include <csignal>
 #include "matt_daemon/is_running.hpp"
 #include "matt_daemon/diagnostics/exception.hpp"
+#include "matt_daemon/tintin_reporter.hpp"
 
 
 
@@ -53,12 +54,14 @@ namespace ft {
 
 			/* default constructor */
 			signal(void) {
-
 				// setup signal handler
-				::signal(SIGINT, self::handler);
-				::signal(SIGTERM, self::handler);
-				::signal(SIGQUIT, self::handler);
-
+				if (::signal(SIGINT, self::handler) == SIG_ERR
+				|| ::signal(SIGTERM, self::handler) == SIG_ERR
+				|| ::signal(SIGQUIT, self::handler) == SIG_ERR
+				|| ::signal(SIGABRT, self::handler) == SIG_ERR
+				|| ::signal(SIGHUP,  self::handler) == SIG_ERR) {
+					throw ft::exception{"signal failed"};
+				}
 			}
 
 			/* deleted copy constructor */
@@ -98,16 +101,29 @@ namespace ft {
 			/* handler */
 			static auto handler(const int signum) -> void {
 
-				::write(STDOUT_FILENO, "signal received\n", 16);
-
 				switch (signum) {
 					case SIGINT:
+						ft::tintin_reporter::log("signal: SIGINT");
 						::is::running::stop();
 						break;
 					case SIGTERM:
+						ft::tintin_reporter::log("signal: SIGTERM");
 						::is::running::stop();
 						break;
 					case SIGQUIT:
+						ft::tintin_reporter::log("signal: SIGQUIT");
+						::is::running::stop();
+						break;
+					case SIGKILL:
+						ft::tintin_reporter::log("signal: SIGKILL");
+						::is::running::stop();
+						break;
+					case SIGABRT:
+						ft::tintin_reporter::log("signal: SIGABRT");
+						::is::running::stop();
+						break;
+					case SIGHUP:
+						ft::tintin_reporter::log("signal: SIGHUP");
 						::is::running::stop();
 						break;
 					default:

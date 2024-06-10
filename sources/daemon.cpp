@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:03:45 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/27 20:38:03 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/10 19:37:47 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include "matt_daemon/signal/signal.hpp"
 #include "matt_daemon/server/unique_file.hpp"
 #include "matt_daemon/flock_guard.hpp"
-#include "matt_daemon/write.hpp"
+#include "matt_daemon/delete_guard.hpp"
 
 #include <unistd.h>
 #include <sys/stat.h>
@@ -66,10 +66,8 @@ auto ft::change_directory(const char* path) -> void {
 }
 
 /* is root */
-auto ft::is_root(void) -> void {
-
-	if (::geteuid() != 0)
-		throw ft::exception{"You must be root to execute this program"};
+auto ft::is_root(void) -> bool {
+	return ::geteuid() == 0;
 }
 
 
@@ -77,7 +75,26 @@ auto ft::is_root(void) -> void {
 auto ft::launch_daemon(void) -> void {
 
 	// check we have root privileges
-	//ft::is_root();
+	if (not ft::is_root()) {
+		std::cerr << "daemon must be run as root" << std::endl;
+		return;
+	}
+
+	const char* const dirs[] {
+		"/var/log/matt_daemon",
+		"/var/lock"
+	};
+
+	for (const char* dir : dirs) {
+		// check if directory exists
+		struct stat st;
+		if (::stat(dir, &st) == -1) {
+			if (::mkdir(dir, 0755) == -1) {
+				std::cerr << "mkdir failed: " << dir << std::endl;
+				return; }
+		}
+	}
+
 
 	// fork process
 	const auto pid = ft::fork();
@@ -103,15 +120,21 @@ auto ft::launch_daemon(void) -> void {
 	//	{"/dev/null", O_WRONLY}
 	//};
 
+	const char* path = "/var/lock/matt_daemon.lock";
+
 	// check if server is already running
 	ft::unique_file file{
-		"/mnt/nfs/homes/artblin/Desktop/ft_matt_daemon/matt.lock",
+		path,
 		O_CREAT | O_RDWR, 0666
 	};
+
+	// delete lock file on exit
+	ft::delete_guard guard{path};
 
 	// lock file
 	ft::flock_guard lock{file};
 
+	// setup signals
 	ft::signal::setup();
 
 	// create server

@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 21:12:59 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/27 20:38:20 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/10 19:22:05 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ ft::dispatch::dispatch(void)
 :	_epoll{::epoll_create1(0)},
 	_events{},
 	_clients{},
-	_mask{ft::signal::set<SIGINT, SIGTERM, SIGQUIT>()} {
+	_mask{ft::signal::set<SIGINT, SIGTERM, SIGQUIT, SIGKILL, SIGABRT, SIGHUP>()} {
 
 	if (not _epoll)
 		throw ERRNO_EXCEPT;

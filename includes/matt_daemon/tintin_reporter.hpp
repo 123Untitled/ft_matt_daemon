@@ -31,10 +31,13 @@ namespace ft {
 			static auto log(const char* message) -> void {
 				const char* time = ft::time();
 
+				const char* path = "/var/log/matt_daemon/matt_daemon.log";
+
 				ft::unique_file file{
-					"/mnt/nfs/homes/artblin/Desktop/ft_matt_daemon/matt_daemon.log",
+					path,
 					O_RDWR | O_CREAT | O_APPEND,
-					0600};
+					0600
+				};
 
 				//self& reporter = self::shared();
 

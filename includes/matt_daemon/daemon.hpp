@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:04:17 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/27 14:06:30 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/10 19:36:10 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ namespace ft {
 	static auto change_directory(const char*) -> void;
 
 	/* is root */
-	static auto is_root(void) -> void;
+	static auto is_root(void) -> bool;
 
 	/* close file descriptors */
 	static auto close_descriptors(void) -> void;

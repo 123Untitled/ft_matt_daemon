@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 20:39:45 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/27 20:05:39 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/10 19:10:02 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,8 @@ namespace ft {
 						ft::tintin_reporter::error(e.what());
 					}
 				}
+
+				ft::tintin_reporter::log("server stopped");
 			}
 
 
