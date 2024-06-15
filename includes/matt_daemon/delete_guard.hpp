@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 21:55:12 by artblin           #+#    #+#             */
-/*   Updated: 2024/06/10 19:07:02 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/15 18:42:30 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,7 @@ namespace ft {
 				if (_path == nullptr)
 					return;
 
-				if (::unlink(_path) != 0)
-					ft::tintin_reporter::log("delete_guard: unlink failed");
+				static_cast<void>(::unlink(_path));
 			}
 
 

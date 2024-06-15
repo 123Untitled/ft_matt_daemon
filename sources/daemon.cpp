@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:03:45 by artblin           #+#    #+#             */
-/*   Updated: 2024/06/10 19:37:47 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/15 18:49:14 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,9 +103,15 @@ auto ft::launch_daemon(void) -> void {
 	if (pid > 0) return;
 
 	// create new session
-	(void)ft::new_session();
+	static_cast<void>(ft::new_session());
 
-	//::umask(0);
+
+	// second fork
+	if (ft::fork() > 0) return;
+
+	// set file mode creation mask
+	umask(0);
+
 
 	// change working directory
 	ft::change_directory("/");
@@ -113,19 +119,13 @@ auto ft::launch_daemon(void) -> void {
 	// close descriptors
 	close_descriptors();
 
-	// redirect standard file descriptors
-	//ft::unique_file stds[3] = {
-	//	{"/dev/null", O_RDONLY},
-	//	{"/dev/null", O_WRONLY},
-	//	{"/dev/null", O_WRONLY}
-	//};
 
 	const char* path = "/var/lock/matt_daemon.lock";
 
 	// check if server is already running
 	ft::unique_file file{
 		path,
-		O_CREAT | O_RDWR, 0666
+		O_CREAT | O_RDWR, 0700
 	};
 
 	// delete lock file on exit

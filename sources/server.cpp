@@ -20,7 +20,7 @@ ft::server::server(void)
 	_socket.reuse_address();
 
 	// setup address
-	ft::address addr{in_addr{INADDR_ANY}, 4342};
+	ft::address addr{in_addr{INADDR_ANY}, 4242};
 
 	// bind address to socket
 	_socket.bind(addr);
