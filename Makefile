@@ -6,7 +6,7 @@
 #    By: artblin <artblin@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 19:37:03 by artblin           #+#    #+#              #
-#    Updated: 2024/05/27 20:10:13 by artblin          ###   ########.fr        #
+#    Updated: 2024/06/20 18:45:48 by artblin          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -67,6 +67,12 @@ override EXEC := $(PROJECT)
 # compile commands for clangd
 override COMPILE_DB := compile_commands.json
 
+# log file
+override LOG := /var/log/matt_daemon/matt_daemon.log
+
+# lock file
+override LOCK := /var/lock/matt_daemon.lock
+
 
 
 # -- D I R E C T O R I E S ----------------------------------------------------
@@ -97,7 +103,6 @@ override MKDIR := mkdir -p
 
 # remove recursively force
 override RM := rm -rf
-
 
 
 # -- C O M P I L E R  S E T T I N G S -----------------------------------------
@@ -145,7 +150,6 @@ override DEPFLAGS = -MT $@ -MMD -MP -MF $*.d
 override CXXFLAGS := $(STD) $(OPT) $(DEBUG) $(FLAGS) $(INCLUDES)
 
 
-
 # -- C O L O R  S E T T I N G S -----------------------------------------------
 
 define COLOR
@@ -160,7 +164,7 @@ endef
 # -- P H O N Y  T A R G E T S -------------------------------------------------
 
 # phony targets
-.PHONY: all clean fclean re ascii obj exec leaks
+.PHONY: all clean fclean re ascii obj exec leaks log lock process
 
 
 # -- M A I N  T A R G E T S ---------------------------------------------------
@@ -197,13 +201,22 @@ clean:
 
 fclean: clean
 	$(call COLOR,"full cleaning project")
-	$(RM) $(EXEC) $(COMPILE_DB)
+	$(RM) $(EXEC) $(COMPILE_DB) $(LOG) $(LOCK)
 
 
 # -- L E A K S ----------------------------------------------------------------
 
 leaks: ascii $(EXEC)
 	valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes $(EXEC)
+
+log:
+	cat $(LOG)
+
+lock:
+	ls -la $(LOCK)
+
+process:
+	ps aux | grep $(EXEC)
 
 
 

@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:03:45 by artblin           #+#    #+#             */
-/*   Updated: 2024/06/15 18:49:14 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/20 19:03:07 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,19 +80,14 @@ auto ft::launch_daemon(void) -> void {
 		return;
 	}
 
-	const char* const dirs[] {
-		"/var/log/matt_daemon",
-		"/var/lock"
-	};
+	const char* const dir = "/var/lock";
 
-	for (const char* dir : dirs) {
-		// check if directory exists
-		struct stat st;
-		if (::stat(dir, &st) == -1) {
-			if (::mkdir(dir, 0755) == -1) {
-				std::cerr << "mkdir failed: " << dir << std::endl;
-				return; }
-		}
+	// check if directory exists
+	struct stat st;
+	if (::stat(dir, &st) == -1) {
+		if (::mkdir(dir, 0755) == -1) {
+			std::cerr << "mkdir failed: " << dir << std::endl;
+			return; }
 	}
 
 
@@ -133,6 +128,9 @@ auto ft::launch_daemon(void) -> void {
 
 	// lock file
 	ft::flock_guard lock{file};
+
+	// set remove state
+	guard.remove();
 
 	// setup signals
 	ft::signal::setup();

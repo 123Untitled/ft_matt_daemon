@@ -5,6 +5,8 @@
 
 #include "matt_daemon/server/unique_file.hpp"
 #include "matt_daemon/time.hpp"
+#include <sys/stat.h>
+
 
 
 // -- F T  N A M E S P A C E --------------------------------------------------
@@ -29,6 +31,17 @@ namespace ft {
 
 			/* log */
 			static auto log(const char* message) -> void {
+
+				// log path
+				const char* const dir = "/var/log/matt_daemon";
+
+				// check if directory exists
+				struct stat st;
+				if (::stat(dir, &st) == -1) {
+					if (::mkdir(dir, 0755) == -1) {
+						return; }
+				}
+
 				const char* time = ft::time();
 
 				const char* path = "/var/log/matt_daemon/matt_daemon.log";
