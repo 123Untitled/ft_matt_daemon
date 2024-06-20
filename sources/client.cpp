@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 21:53:47 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/27 20:08:13 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/20 19:21:58 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,13 @@ auto ft::client::receive(void) -> void {
 
 	if (str.empty())
 		return;
+
+	if (str == "quit") {
+		ft::tintin_reporter::log("quit command received");
+		is::running::stop();
+		return;
+	}
+
 	ft::tintin_reporter::log(str.data());
 }
 
