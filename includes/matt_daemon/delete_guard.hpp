@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 21:55:12 by artblin           #+#    #+#             */
-/*   Updated: 2024/06/15 18:42:30 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/20 19:02:46 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ namespace ft {
 			/* destructor */
 			~delete_guard(void) noexcept {
 
-				if (_path == nullptr)
+				if (_path == nullptr || _remove == false)
 					return;
 
 				static_cast<void>(::unlink(_path));
@@ -72,12 +72,23 @@ namespace ft {
 			auto operator=(self&&) -> self& = delete;
 
 
+			// -- public modifiers --------------------------------------------
+
+			/* remove */
+			auto remove(void) noexcept -> void {
+				_remove = true;
+			}
+
+
 		private:
 
 			// -- private members ---------------------------------------------
 
 			/* path */
 			const char* _path;
+
+			/* remove */
+			bool _remove;
 
 	}; // class delete_guard
 
