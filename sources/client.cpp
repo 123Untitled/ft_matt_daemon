@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 21:53:47 by artblin           #+#    #+#             */
-/*   Updated: 2024/06/20 19:21:58 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/24 16:15:15 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ auto ft::client::receive(void) -> void {
 			if (errno == EAGAIN || errno == EWOULDBLOCK)
 				break;
 			else {
-				throw ERRNO_EXCEPT;
+				throw ft::errno_exception{"client recv"};
 			}
 		}
 		else if (bytes == 0) {

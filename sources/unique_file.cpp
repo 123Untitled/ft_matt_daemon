@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 21:38:11 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/10 19:31:07 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/24 16:14:45 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ ft::unique_file::unique_file(const char* path, const int flags, const ::mode_t m
 
 	// check file
 	if (_descriptor == INVALID_DESCRIPTOR)
-		throw ERRNO_EXCEPT;
+		throw ft::errno_exception{"unique_file open"};
 }
 
 /* write */

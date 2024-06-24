@@ -6,7 +6,7 @@
 #    By: artblin <artblin@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/10 19:37:03 by artblin           #+#    #+#              #
-#    Updated: 2024/06/20 18:45:48 by artblin          ###   ########.fr        #
+#    Updated: 2024/06/24 16:06:34 by artblin          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -209,11 +209,13 @@ fclean: clean
 leaks: ascii $(EXEC)
 	valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes $(EXEC)
 
+# display log in real time
 log:
-	cat $(LOG)
+	tail -f $(LOG)
 
+# check if lock file exists
 lock:
-	ls -la $(LOCK)
+	stat $(LOCK)
 
 process:
 	ps aux | grep $(EXEC)

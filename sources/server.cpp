@@ -29,7 +29,7 @@ ft::server::server(void)
 	_socket.listen();
 
 	// log server initialized
-	ft::tintin_reporter::log("server initialized");
+	ft::tintin_reporter::log("server initialized on port 4242");
 }
 
 
@@ -49,6 +49,12 @@ auto ft::server::receive(void) -> void {
 	// accept connection
 	auto socket = _socket.accept();
 
+	// check max connections
+	if (ft::dispatch::subscribed() == 4U) {
+		ft::tintin_reporter::log("max clients reached");
+		return;
+	}
+
 	// set non-blocking mode
 	socket.non_blocking();
 
@@ -60,7 +66,7 @@ auto ft::server::receive(void) -> void {
 	ft::dispatch::add(std::move(client));
 
 	// log connection
-	ft::tintin_reporter::log("client connected");
+	ft::tintin_reporter::log("new client connected");
 }
 
 

@@ -60,24 +60,14 @@ namespace ft {
 				file.write("\n", 1U);
 			}
 
-			/* info */
-			static auto info(const char* message) -> void {
-			}
-
-			/* error */
-			static auto error(const char* message) -> void {
-			}
 
 
 		private:
 
 			// -- private lifecycle -------------------------------------------
 
-			/* default constructor */
-			tintin_reporter(void) {
-			//: _file{"/mnt/nfs/homes/artblin/Desktop/ft_matt_daemon/matt_daemon.log", O_RDWR | O_CREAT | O_APPEND, 0600} {
-				// /var/log/matt_daemon/matt_daemon.log
-			}
+			/* deleted default constructor */
+			tintin_reporter(void) = delete;
 
 			/* deleted copy constructor */
 			tintin_reporter(const self&) = delete;
@@ -93,21 +83,6 @@ namespace ft {
 
 			/* deleted move assignment */
 			auto operator=(self&&) -> self& = delete;
-
-
-			// -- private static methods --------------------------------------
-
-			/* shared */
-			static auto shared(void) -> self& {
-				static self instance;
-				return instance;
-			}
-
-
-			// -- private members ---------------------------------------------
-
-			/* file */
-			//ft::unique_file _file;
 
 	}; // class tintin_reporter
 

@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 21:12:59 by artblin           #+#    #+#             */
-/*   Updated: 2024/06/10 19:22:05 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/24 16:14:25 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "matt_daemon/signal/signal.hpp"
 
 
-// -- public lifecycle --------------------------------------------------------
+// -- private lifecycle -------------------------------------------------------
 
 /* default constructor */
 ft::dispatch::dispatch(void)
@@ -24,7 +24,7 @@ ft::dispatch::dispatch(void)
 	_mask{ft::signal::set<SIGINT, SIGTERM, SIGQUIT, SIGKILL, SIGABRT, SIGHUP>()} {
 
 	if (not _epoll)
-		throw ERRNO_EXCEPT;
+		throw ft::errno_exception{"dispatch constructor"};
 }
 
 
@@ -38,7 +38,7 @@ auto ft::dispatch::_wait(void) -> void {
 
 	// check for error
 	if (result < 0)
-		throw ERRNO_EXCEPT;
+		throw ft::errno_exception{"dispatch epoll_pwait"};
 
 	// loop over events
 	for (int i = 0; i < result; ++i) {

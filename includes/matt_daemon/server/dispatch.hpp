@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 20:39:45 by artblin           #+#    #+#             */
-/*   Updated: 2024/06/10 19:10:02 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/24 16:17:04 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,14 +66,17 @@ namespace ft {
 
 			// -- public static methods ---------------------------------------
 
+			/* subscribed */
+			static auto subscribed(void) -> std::size_t {
+				return self::shared()._clients.size();
+			}
+
+
 			/* add */
 			static auto add(std::unique_ptr<ft::io_event>&& ev) -> void {
 
+				// get shared instance
 				auto& instance = self::shared();
-
-				// check clients count
-				if (instance._clients.size() == 3U)
-					throw ft::exception("too many clients");
 
 				// add client
 				instance._clients.emplace_back(std::move(ev));
@@ -87,8 +90,10 @@ namespace ft {
 				};
 
 				// add event
-				if (::epoll_ctl(self::shared()._epoll, EPOLL_CTL_ADD, client->socket(), &event) != 0)
-					throw ERRNO_EXCEPT;
+				if (::epoll_ctl(self::shared()._epoll, EPOLL_CTL_ADD, client->socket(), &event) != 0) {
+					instance._clients.pop_back();
+					throw ft::errno_exception{"dispatch add epoll_ctl"};
+				}
 			}
 
 			/* del */
@@ -96,7 +101,7 @@ namespace ft {
 
 				// remove event
 				if (::epoll_ctl(self::shared()._epoll, EPOLL_CTL_DEL, ev.socket(), nullptr) != 0)
-					throw ERRNO_EXCEPT;
+					throw ft::errno_exception{"dispatch del epoll_ctl"};
 
 				auto& instance = self::shared();
 
@@ -128,7 +133,7 @@ namespace ft {
 						self::shared()._wait();
 					}
 					catch (const ft::exception& e) {
-						ft::tintin_reporter::error(e.what());
+						ft::tintin_reporter::log(e.what());
 					}
 				}
 

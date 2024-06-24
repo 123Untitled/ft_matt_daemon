@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:03:45 by artblin           #+#    #+#             */
-/*   Updated: 2024/06/20 19:03:07 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/24 16:17:48 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ auto ft::close_descriptors(void) -> void {
 	if (::close( STDIN_FILENO) != 0
 	 || ::close(STDOUT_FILENO) != 0
 	 || ::close(STDERR_FILENO) != 0)
-		throw ERRNO_EXCEPT;
+		throw ft::errno_exception{"close_descriptors"};
 }
 
 
@@ -42,7 +42,7 @@ auto ft::fork(void) -> ::pid_t {
 	::pid_t pid = ::fork();
 
 	if (pid < 0)
-		throw ERRNO_EXCEPT;
+		throw ft::errno_exception{"fork"};
 
 	return pid;
 }
@@ -53,7 +53,7 @@ auto ft::new_session(void) -> ::pid_t {
 	::pid_t sid = ::setsid();
 
 	if (sid == -1)
-		throw ERRNO_EXCEPT;
+		throw ft::errno_exception{"new_session"};
 
 	return sid;
 }
@@ -62,7 +62,7 @@ auto ft::new_session(void) -> ::pid_t {
 auto ft::change_directory(const char* path) -> void {
 
 	if (::chdir(path) != 0)
-		throw ERRNO_EXCEPT;
+		throw ft::errno_exception{"change_directory"};
 }
 
 /* is root */

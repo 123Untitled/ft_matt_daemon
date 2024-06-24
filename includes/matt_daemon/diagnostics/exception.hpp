@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 20:13:47 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/27 14:12:03 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/24 16:13:07 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 
 #include <errno.h>
 #include <string.h>
+#include <string>
+
 
 // -- F T  N A M E S P A C E  -------------------------------------------------
 
@@ -103,65 +105,31 @@ namespace ft {
 
 			/* default constructor */
 			constexpr errno_exception(const char* where) noexcept
-			: _what{} {
+			: exception{where != nullptr ? where : "unknown"}, _what{} {
 
-				unsigned int i = 0;
 
-				if (where == nullptr)
-					where = "unknown";
-
-				while (where[i] != '\0') {
-					_what[i] = where[i];
-					++i;
-				}
-
-				_what[i    ] = ':';
-				_what[i + 1] = ' ';
-
-				i += 2;
-
-				const char* desc = ::strerrordesc_np(errno);
-				const char* code = ::strerrorname_np(errno);
-
-				if (desc == nullptr)
-					desc = "unknown error";
-
-				for (unsigned int j = 0; desc[j] != '\0'; ++j, ++i)
-					_what[i] = desc[j];
-
-				_what[i    ] = ' ';
-				_what[i + 1] = '(';
-
-				i += 2;
-
-				if (code == nullptr)
-					code = "unknown code";
-
-				for (unsigned int j = 0; code[j] != '\0'; ++j, ++i)
-					_what[i] = code[j];
-
-				_what[i    ] = ')';
-				_what[i + 1] = '\0';
+				_what.reserve(256);
+				_what.append(exception::what());
+				_what.append(": ");
+				_what.append(strerror(errno));
 
 			}
 
 
 			/* what */
 			auto what(void) const noexcept -> const char* override {
-				return _what;
+				return _what.data();
 			}
 
 
 		private:
 
 			/* what */
-			char _what[1024];
+			std::string _what;
 
 	}; // class errno_exception
 
 } // namespace ft
 
-
-#define ERRNO_EXCEPT ft::errno_exception{__PRETTY_FUNCTION__}
 
 #endif // FT_EXCEPTION_HPP

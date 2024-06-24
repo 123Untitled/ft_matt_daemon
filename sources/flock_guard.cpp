@@ -6,7 +6,7 @@
 /*   By: artblin <artblin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/04 22:37:46 by artblin           #+#    #+#             */
-/*   Updated: 2024/05/10 19:30:42 by artblin          ###   ########.fr       */
+/*   Updated: 2024/06/24 16:15:32 by artblin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ ft::flock_guard::flock_guard(const ft::unique_file& file)
 : _file{file} {
 
 	if (::flock(_file, LOCK_EX | LOCK_NB) == -1)
-		throw ERRNO_EXCEPT;
+		throw ft::errno_exception{"flock_guard constructor"};
 }
 
 /* destructor */
